@@ -157,16 +157,7 @@ class Threadmark(gl.contract.Contract):
                 raise gl.vm.UserError(EXPECTED + " Quote is absent from selected lines")
             return json.dumps({"sha256": hashlib.sha256(body.encode("utf-8")).hexdigest(), "excerpt": excerpt}, sort_keys=True)
 
-        def verify(value):
-            if not isinstance(value, gl.vm.Return):
-                return False
-            try:
-                candidate = json.loads(value.calldata)
-                return candidate == json.loads(fetch())
-            except Exception:
-                return False
-
-        receipt = json.loads(gl.vm.run_nondet_default(fetch, verify))
+        receipt = json.loads(gl.eq_principle.strict_eq(fetch))
         if quote not in receipt["excerpt"] or len(receipt["sha256"]) != 64:
             raise gl.vm.UserError(EXPECTED + " Invalid source receipt")
         node = {"id": node_id, "kind": "SOURCE", "status": "PINNED", "statement": quote,

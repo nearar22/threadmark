@@ -26,11 +26,12 @@ An append-only provenance graph. Immutable GitHub file snapshots form source nod
 
 | Requirement | Code path | Test | Live proof | Status |
 | --- | --- | --- | --- | --- |
-| Pinned source identity, safe URL parsing, exact quoted lines | `pin_source`, `_url` | URL and forged-quote tests | Source tx `0xefcd...d714` FINALIZED | PASS |
+| Pinned source identity, safe URL parsing, exact quoted lines | `pin_source`, `_url` | URL and forged-quote tests | Source tx `0x5869...30c9` FINALIZED | PASS |
 | Independently checked source digest and selected excerpt | `pin_source` nondeterministic fetch/verify | Changed-source validator rejection | Pinned README digest `9f69...ecec` | PASS |
 | Every derived verdict checked against exact parents and statement | `derive` comparative consensus | Validator disagreement and malformed verdict tests | Supported and broken txs both FINALIZED | PASS |
 | Unauthorized, duplicate, cross-board and unsupported-parent guards | Contract lifecycle | Direct guard tests | Not all guards exercised live | PASS for tests, live unverified |
 | Source-to-inference-to-inference ancestry | `trace` view | Transitive trace test | One-hop live graph only | PASS for tests, live unverified |
-| Public UI, fresh browser path and finalized on-chain evidence | Frontend/deployment | Local browser structure and production build | Public site pending | UNVERIFIED |
+| Public read UI, exact receipt and finalized on-chain evidence | Frontend/deployment | Production build and browser inspection | GitHub Pages loads three live nodes and source receipt | PASS |
+| Wallet write from a fresh public browser session | Transaction Kit panel | Not covered by automated test | Script writes finalized, but browser wallet path not exercised | UNVERIFIED |
 
-No acceptance or deployment claim is made while any mandatory row remains UNVERIFIED.
+The contract and public read path are deployed and verified. Do not claim the public wallet-write path was tested until a fresh wallet session reaches successful FINALIZED status in the hosted UI. Portal acceptance and any points are separate review decisions.

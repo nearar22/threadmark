@@ -8,7 +8,7 @@ This is not a truth oracle. It establishes whether a statement follows from the 
 
 - Web app: [nearar22.github.io/threadmark](https://nearar22.github.io/threadmark/)
 
-- Contract: [`0x8215D9ff39c97E33178E17ffC9AD199290aFab03`](https://explorer-studio-dev.genlayer.com/address/0x8215D9ff39c97E33178E17ffC9AD199290aFab03)
+- Contract: [`0x76797B4B99E1ee3AA36E63537F0480f6DFa7af69`](https://explorer-studio-dev.genlayer.com/address/0x76797B4B99E1ee3AA36E63537F0480f6DFa7af69)
 - Network: Studio Next, chain ID `61997`, RPC `https://studio-next.genlayer.com/api`
 - Example board: `threadmark-demo`
 - Source node: `source-intent`, pinned to [IntentLock README at commit `f8cc2d08...`](https://raw.githubusercontent.com/nearar22/intent-lock/f8cc2d08fd4a91b0450d60e065e5c507cdfd7c99/README.md), line 5, with full-file SHA-256 `9f69ecb6caed588f21c81c1874bf4d1ae50d19bc4a0b19b692d75a595248ecec`.

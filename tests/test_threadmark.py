@@ -1,4 +1,5 @@
 import json
+import importlib
 
 CONTRACT = "contracts/threadmark.py"
 URL = "https://raw.githubusercontent.com/nearar22/intent-lock/f8cc2d08fd4a91b0450d60e065e5c507cdfd7c99/README.md"
@@ -47,12 +48,16 @@ def test_untrusted_url_and_forged_quote_fail_closed(direct_vm, direct_deploy):
     assert contract.list_nodes("desk-one") == []
 
 
-def test_validator_rejects_changed_source_snapshot(direct_vm, direct_deploy):
+def test_validator_rejects_changed_source_snapshot(direct_vm, direct_deploy, monkeypatch):
     contract = direct_deploy(CONTRACT)
+    gl = importlib.import_module("genlayer")
     contract.create_board("desk-one", "Agent evidence trail")
     pin(direct_vm, contract)
     direct_vm.clear_mocks()
     direct_vm.mock_web(URL, {"method": "GET", "status": 200, "body": SOURCE + " altered"})
+    # Direct mode does not yet encode spawn_sandbox results like the live VM.
+    # Preserve strict_eq semantics while exercising the independent refetch.
+    monkeypatch.setattr(gl.vm, "spawn_sandbox", lambda fn: gl.vm.Return(fn()))
     assert direct_vm.run_validator() is False
     direct_vm.clear_mocks()
 
