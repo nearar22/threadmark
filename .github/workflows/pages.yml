@@ -1,0 +1,49 @@
+name: Publish Threadmark
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Install and build
+        working-directory: frontend
+        env:
+          GITHUB_PAGES: "1"
+          NEXT_PUBLIC_GENLAYER_RPC_URL: https://studio-next.genlayer.com/api
+          NEXT_PUBLIC_GENLAYER_CHAIN_ID: "61997"
+          NEXT_PUBLIC_CONTRACT_ADDRESS: "0x8215D9ff39c97E33178E17ffC9AD199290aFab03"
+        run: |
+          npm ci
+          npm run lint
+          npm run build
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: frontend/out
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

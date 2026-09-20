@@ -1,0 +1,28 @@
+{
+  "project": "Threadmark",
+  "network": "GenLayer Studio Next",
+  "chainId": 61997,
+  "rpcUrl": "https://studio-next.genlayer.com/api",
+  "explorerUrl": "https://explorer-studio-dev.genlayer.com",
+  "contractAddress": "0x8215D9ff39c97E33178E17ffC9AD199290aFab03",
+  "contractSourceSha256": "57d499b1630a9b8704e9de299f90ac2097c15a3e6ac681bcd804d15dddb1f234",
+  "deploymentTransaction": "0x38f9ab8d33b4b0a74951602ba205df6e65c656b8aece110b69dd8eca642f9a26",
+  "demoBoard": "threadmark-demo",
+  "liveProof": {
+    "createBoard": "0x3d4f2b0a0533afe0e23946171c69c15a32922ac7e4fed968690f2307b1ceb1fb",
+    "pinSource": "0xefcd1acdb83c968b4e4251eb3ab5fffa89f1a13d5c84bf6f42abcc2e19b6d714",
+    "supportedInference": "0x9db0644ae3e05b9991f8da53f914e06e05b0209c11f8626fea14862239c70a8e",
+    "brokenInference": "0x40d8ecaa5c2a6eedcd27a932d12bfed82a9248a1d13544328de818a89884ae4d"
+  },
+  "sourceReceipt": {
+    "url": "https://raw.githubusercontent.com/nearar22/intent-lock/f8cc2d08fd4a91b0450d60e065e5c507cdfd7c99/README.md",
+    "firstLine": 5,
+    "lastLine": 5,
+    "sha256": "9f69ecb6caed588f21c81c1874bf4d1ae50d19bc4a0b19b692d75a595248ecec"
+  },
+  "verifiedOutcome": {
+    "source-intent": "PINNED",
+    "claim-paraphrase": "SUPPORTED",
+    "claim-guarantee": "BROKEN"
+  }
+}

@@ -1,0 +1,14 @@
+.env
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+artifacts/
+frontend/.env
+frontend/.next/
+frontend/out/
+frontend/node_modules/
+frontend/next-env.d.ts
+frontend/*.tsbuildinfo
+frontend/AGENTS.md
+frontend/CLAUDE.md
