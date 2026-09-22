@@ -6,6 +6,7 @@ import { studioDevnet } from "genlayer-js/chains";
 import { createTransactionKit } from "@genlayer/transaction-kit";
 import { GenLayerTransactionPanel, type SubmitInput, type TrackedStatus } from "@genlayer/transaction-kit-react";
 import { ArrowDownRight, ArrowUpRight, Check, CircleHelp, Fingerprint, GitBranch, Link2, LockKeyhole, Plus, RefreshCw, Search, ShieldAlert, X } from "lucide-react";
+import { validateAuthorChange } from "@/lib/address.js";
 
 type Node = {
   id: string; kind: "SOURCE" | "INFERENCE"; status: "PINNED" | "SUPPORTED" | "BROKEN";
@@ -55,6 +56,8 @@ export default function Page() {
   const [statement, setStatement] = useState("");
   const [parents, setParents] = useState<string[]>([]);
   const [author, setAuthor] = useState("");
+  const [authorForTx, setAuthorForTx] = useState("");
+  const [authorAllowed, setAuthorAllowed] = useState(true);
   const [activeTx, setActiveTx] = useState<Mode>(null);
 
   const client = useMemo(() => createClient({ chain: CHAIN }), []);
@@ -106,16 +109,22 @@ export default function Page() {
     if (activeTx === "board") return { ...base, method: "create_board", args: [boardId.trim(), boardTitle.trim()] };
     if (activeTx === "source") return { ...base, method: "pin_source", args: [boardId.trim(), nodeId.trim(), sourceUrl.trim(), Number(firstLine), Number(lastLine), quote.trim()] };
     if (activeTx === "derive") return { ...base, method: "derive", args: [boardId.trim(), nodeId.trim(), parents, statement.trim()] };
-    return { ...base, method: "set_author", args: [boardId.trim(), author.trim(), true] };
-  }, [activeTx, boardId, boardTitle, nodeId, sourceUrl, firstLine, lastLine, quote, parents, statement, author]);
+    return { ...base, method: "set_author", args: [boardId.trim(), authorForTx, authorAllowed] };
+  }, [activeTx, boardId, boardTitle, nodeId, sourceUrl, firstLine, lastLine, quote, parents, statement, authorForTx, authorAllowed]);
 
   const done = (status: TrackedStatus) => {
-    if (status.phase === "finalized" && status.successful === true) {
-      setActiveTx(null);
-      setMode(null);
-      setParents([]);
-      setSelectedId(nodeId);
-      void refresh();
+    if (status.phase === "finalized") {
+      if (status.successful === true) {
+        setActiveTx(null);
+        setMode(null);
+        setParents([]);
+        setSelectedId(nodeId);
+        setMessage("");
+        void refresh();
+      } else {
+        setActiveTx(null);
+        setMessage(`Transaction failed: ${status.executionResultName || status.statusName || "the contract rejected this input"}.`);
+      }
     }
   };
 
@@ -124,10 +133,26 @@ export default function Page() {
     setNodeId(suggestedId(nextMode === "source" ? "source" : "claim"));
     setParents([]);
     setStatement("");
+    if (nextMode === "author") {
+      setAuthor("");
+      setAuthorAllowed(true);
+    }
   };
   const submit = () => {
     if (!kit) { setMessage("Connect a Studio Next wallet before writing."); return; }
     if (mode === "derive" && (parents.length < 1 || parents.length > 3)) { setMessage("Select one to three supported parent cards."); return; }
+    if (mode === "author") {
+      if (!board || !wallet || wallet.toLowerCase() !== board.owner.toLowerCase()) {
+        setMessage("Only the connected board owner can manage authors.");
+        return;
+      }
+      try {
+        setAuthorForTx(validateAuthorChange({ value: author, owner: board.owner, authors: board.authors, allowed: authorAllowed }));
+      } catch (error) {
+        setMessage(error instanceof Error ? error.message : "Enter a valid author wallet.");
+        return;
+      }
+    }
     setMessage("");
     setActiveTx(mode);
   };
@@ -181,9 +206,9 @@ export default function Page() {
       {mode === "board" && <><label>BOARD ID<input value={boardId} onChange={event=>setBoardId(event.target.value)}/></label><label>BOARD TITLE<input value={boardTitle} onChange={event=>setBoardTitle(event.target.value)}/></label></>}
       {mode === "source" && <><label>NODE ID<input value={nodeId} onChange={event=>setNodeId(event.target.value)}/></label><label>PINNED RAW FILE URL<input value={sourceUrl} onChange={event=>setSourceUrl(event.target.value)}/></label><div className="line-pair"><label>FIRST LINE<input type="number" min="1" value={firstLine} onChange={event=>setFirstLine(event.target.value)}/></label><label>LAST LINE<input type="number" min="1" value={lastLine} onChange={event=>setLastLine(event.target.value)}/></label></div><label>EXACT QUOTE<textarea value={quote} onChange={event=>setQuote(event.target.value)}/></label></>}
       {mode === "derive" && <><label>NODE ID<input value={nodeId} onChange={event=>setNodeId(event.target.value)}/></label><label>PROPOSED STATEMENT<textarea value={statement} onChange={event=>setStatement(event.target.value)} placeholder="Write one precise claim that should follow from the selected cards."/></label><div className="parent-picker"><span>SELECT 1–3 PARENTS</span>{usable.length ? usable.map(node=><button className={parents.includes(node.id)?"picked":""} key={node.id} onClick={()=>toggleParent(node.id)}><span>{parents.includes(node.id)?<Check size={14}/>:<Plus size={14}/>}</span><b>{node.id}</b><small>{short(node.statement, 38, 0)}</small></button>) : <p>Pin a source before testing an inference.</p>}</div></>}
-      {mode === "author" && <label>AUTHOR WALLET<input value={author} onChange={event=>setAuthor(event.target.value)} placeholder="0x..."/></label>}
+      {mode === "author" && <><label>ACTION<select value={authorAllowed ? "add" : "remove"} onChange={event=>{const allowed=event.target.value==="add";setAuthorAllowed(allowed);setAuthor(allowed ? "" : (board?.authors[0] || ""));setMessage("");}}><option value="add">Add author</option><option value="remove" disabled={!board?.authors.length}>Remove author</option></select></label>{authorAllowed?<label>AUTHOR WALLET<input value={author} onChange={event=>setAuthor(event.target.value)} placeholder="0x followed by 40 hexadecimal characters" autoComplete="off"/><small>{board?.authors.length || 0} of 8 author slots used</small></label>:<label>AUTHORIZED WALLET<select value={author} onChange={event=>setAuthor(event.target.value)}><option value="">Select an author to remove</option>{board?.authors.map(value=><option value={value} key={value}>{value}</option>)}</select></label>}</>}
       {message && <div className="composer-error">{message}</div>}
-      <button className="commit-button" onClick={submit} disabled={!ADDRESS || !wallet}>{mode === "board" ? "Create board" : mode === "source" ? "Pin with validators" : mode === "derive" ? "Ask validators" : "Authorize author"}<ArrowUpRight size={17}/></button>
+      <button className="commit-button" onClick={submit} disabled={!ADDRESS || !wallet}>{mode === "board" ? "Create board" : mode === "source" ? "Pin with validators" : mode === "derive" ? "Ask validators" : authorAllowed ? "Authorize author" : "Remove author"}<ArrowUpRight size={17}/></button>
       <div className="composer-foot">A submitted or accepted transaction is not a final result. The board updates after successful FINALIZED status.</div>
     </section></div>}
     {activeTx && tx && kit && <div className="transaction-overlay"><section className="transaction-box"><div className="transaction-head"><span>GENLAYER CHECKPOINT</span><button onClick={()=>setActiveTx(null)} aria-label="Close transaction"><X size={18}/></button></div><GenLayerTransactionPanel kit={kit} tx={tx} network="GenLayer Studio Next" theme="dark" trackUntil="finalized" onDone={done}/></section></div>}

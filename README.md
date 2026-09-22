@@ -23,7 +23,7 @@ The [deployment record](deployment.json) contains the finalized transactions for
 
 `derive` receives the exact parent statements and the proposed statement. A producer classifies it `ENTAILED`, `CONTRADICTED`, or `UNSUPPORTED`. Independent comparative validation accepts the classification only if it agrees with the complete parent evidence. Only `ENTAILED` becomes `SUPPORTED`. The other outcomes are retained as `BROKEN`, and the contract rejects any attempt to use them as parents.
 
-The board owner can add up to eight authors. Node IDs are unique within a board; nodes cannot be edited or deleted. The contract enforces three-parent and six-depth limits, a 40-node board cap, and same-board ancestry. `trace` returns a node and its transitive parents.
+The board owner can add or remove up to eight authors. Wallet input is validated as an exact 20-byte hex address and stored in one lowercase canonical form, so mixed-case duplicates cannot consume multiple slots. Only the owner can change the author list. Node IDs are unique within a board; nodes cannot be edited or deleted. The contract enforces three-parent and six-depth limits, a 40-node board cap, and same-board ancestry. `trace` returns a node and its transitive parents.
 
 ## Reproduce locally
 
@@ -47,7 +47,7 @@ python -m pytest tests -q
 genvm-lint lint contracts/threadmark.py --json
 ```
 
-To deploy a fresh copy, set `GENLAYER_PRIVATE_KEY` in your local process environment and run `npm run deploy:contract` from `frontend`. Keep this secret out of version control. Set `CONTRACT_ADDRESS` and run `npm run smoke:contract` for a fresh demo board. The smoke script writes a board, a pinned source, a supported inference, and a broken inference, and requires finalized receipts and the expected stored state.
+To deploy a fresh copy, set `GENLAYER_PRIVATE_KEY` in your local process environment and run `npm run deploy:contract` from `frontend`. Keep this secret out of version control. Set `CONTRACT_ADDRESS` and `GENLAYER_SECONDARY_PRIVATE_KEY`, then run `npm run smoke:contract` for a fresh demo board. The smoke script repeats the steward's mixed-case sample, confirms canonical add and remove, authorizes a second wallet, creates a source node from that author, stores supported and broken inferences, and requires finalized receipts plus the expected state.
 
 ## Review notes
 

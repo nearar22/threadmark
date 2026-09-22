@@ -28,6 +28,21 @@ def _id(value):
     return value
 
 
+def _address(value):
+    if hasattr(value, "as_hex"):
+        raw = value.as_hex
+    elif isinstance(value, (bytes, bytearray)):
+        raw = "0x" + bytes(value).hex()
+    else:
+        raw = str(value).strip()
+    if not re.fullmatch(r"0x[0-9a-fA-F]{40}", raw):
+        raise gl.vm.UserError(EXPECTED + " Invalid wallet address; expected 0x followed by 40 hexadecimal characters")
+    normalized = "0x" + raw[2:].lower()
+    if normalized == "0x" + "0" * 40:
+        raise gl.vm.UserError(EXPECTED + " Zero wallet address is not allowed")
+    return normalized
+
+
 def _url(value):
     value = _text(value, 500)
     try:
@@ -86,8 +101,8 @@ class Threadmark(gl.contract.Contract):
         return json.loads(self.nodes[key])
 
     def _can_write(self, board):
-        sender = gl.message.sender_address.as_hex.lower()
-        if sender != board["owner"].lower() and sender not in [x.lower() for x in board["authors"]]:
+        sender = _address(gl.message.sender_address)
+        if sender != board["owner"] and sender not in board["authors"]:
             raise gl.vm.UserError(EXPECTED + " Caller is not an authorized author")
 
     def _slot(self, board, node_id):
@@ -109,24 +124,30 @@ class Threadmark(gl.contract.Contract):
             raise gl.vm.UserError(EXPECTED + " Board ID already exists")
         if len(title) < 4:
             raise gl.vm.UserError(EXPECTED + " Title is incomplete")
-        self.boards[board_id] = json.dumps({"id": board_id, "title": title, "owner": gl.message.sender_address.as_hex, "authors": [], "node_ids": []}, sort_keys=True)
+        self.boards[board_id] = json.dumps({"id": board_id, "title": title, "owner": _address(gl.message.sender_address), "authors": [], "node_ids": []}, sort_keys=True)
         self.board_ids.append(board_id)
         return board_id
 
     @gl.public.write
-    def set_author(self, board_id: str, author: gl.Address, allowed: bool) -> None:
+    def set_author(self, board_id: str, author: str, allowed: bool) -> None:
         board_id = _id(board_id)
         board = self._board(board_id)
-        if board["owner"].lower() != gl.message.sender_address.as_hex.lower():
+        if board["owner"] != _address(gl.message.sender_address):
             raise gl.vm.UserError(EXPECTED + " Only owner can manage authors")
-        address = author.as_hex
-        authors = [x.lower() for x in board["authors"]]
-        if allowed and address.lower() not in authors:
+        address = _address(author)
+        authors = board["authors"]
+        if allowed:
+            if address == board["owner"]:
+                raise gl.vm.UserError(EXPECTED + " Board owner already has author rights")
+            if address in authors:
+                raise gl.vm.UserError(EXPECTED + " Author is already authorized")
             if len(authors) >= MAX_AUTHORS:
                 raise gl.vm.UserError(EXPECTED + " Author limit reached")
             board["authors"].append(address)
-        elif not allowed:
-            board["authors"] = [x for x in board["authors"] if x.lower() != address.lower()]
+        else:
+            if address not in authors:
+                raise gl.vm.UserError(EXPECTED + " Author is not authorized")
+            board["authors"] = [x for x in authors if x != address]
         self.boards[board_id] = json.dumps(board, sort_keys=True)
 
     @gl.public.write
@@ -163,7 +184,7 @@ class Threadmark(gl.contract.Contract):
         node = {"id": node_id, "kind": "SOURCE", "status": "PINNED", "statement": quote,
                 "parents": [], "depth": 0, "source": {"url": raw_url, "first_line": first, "last_line": last,
                 "sha256": receipt["sha256"], "excerpt": receipt["excerpt"]},
-                "author": gl.message.sender_address.as_hex}
+                "author": _address(gl.message.sender_address)}
         self._save(board, node)
         return node_id
 
@@ -211,7 +232,7 @@ class Threadmark(gl.contract.Contract):
         verdict = _decision(gl.eq_principle.prompt_comparative(decide, principle))
         node = {"id": node_id, "kind": "INFERENCE", "status": "SUPPORTED" if verdict == "ENTAILED" else "BROKEN",
                 "verdict": verdict, "statement": statement, "parents": normalized, "depth": depth,
-                "source": None, "author": gl.message.sender_address.as_hex}
+                "source": None, "author": _address(gl.message.sender_address)}
         self._save(board, node)
         return node_id
 

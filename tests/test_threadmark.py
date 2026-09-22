@@ -5,6 +5,7 @@ CONTRACT = "contracts/threadmark.py"
 URL = "https://raw.githubusercontent.com/nearar22/intent-lock/f8cc2d08fd4a91b0450d60e065e5c507cdfd7c99/README.md"
 SOURCE = "IntentLock catches the harder case: two agents, two request IDs, and two differently worded instructions that would cause the same economic or real-world effect."
 QUOTE = "two agents, two request IDs, and two differently worded instructions"
+STEWARD_AUTHOR = "0x1509759377876c435914b5394fa83E7391dEfbAc"
 
 
 def pin(vm, contract, board="desk-one", node="root-one", url=URL, text=SOURCE, quote=QUOTE):
@@ -78,6 +79,49 @@ def test_authorization_duplicate_and_cross_board_guards(direct_vm, direct_deploy
         pin(direct_vm, contract)
     with direct_vm.expect_revert("Parent is not on this board"):
         contract.derive("desk-two", "claim-one", ["root-one"], "This statement is not available on the second board.")
+
+
+def test_set_author_normalizes_string_and_completes_author_write(direct_vm, direct_deploy, direct_alice):
+    contract = direct_deploy(CONTRACT)
+    direct_vm.sender = direct_alice
+    contract.create_board("desk-one", "Agent evidence trail")
+    contract.set_author("desk-one", STEWARD_AUTHOR, True)
+    stored = contract.get_board("desk-one")["authors"]
+    assert stored == [STEWARD_AUTHOR.lower()]
+
+    direct_vm.sender = bytes.fromhex(STEWARD_AUTHOR[2:])
+    pin(direct_vm, contract, node="author-source")
+    assert contract.get_node("desk-one", "author-source")["author"] == STEWARD_AUTHOR.lower()
+
+
+def test_set_author_rejects_invalid_duplicate_non_owner_and_limit(direct_vm, direct_deploy, direct_alice, direct_bob):
+    contract = direct_deploy(CONTRACT)
+    direct_vm.sender = direct_alice
+    contract.create_board("desk-one", "Agent evidence trail")
+
+    for invalid in ("", "1509759377876c435914b5394fa83E7391dEfbAc", "0x1234", "0x" + "g" * 40):
+        with direct_vm.expect_revert("Invalid wallet address"):
+            contract.set_author("desk-one", invalid, True)
+    with direct_vm.expect_revert("Zero wallet address"):
+        contract.set_author("desk-one", "0x" + "0" * 40, True)
+
+    direct_vm.sender = direct_bob
+    with direct_vm.expect_revert("Only owner"):
+        contract.set_author("desk-one", STEWARD_AUTHOR, True)
+    with direct_vm.expect_revert("Only owner"):
+        contract.set_author("desk-one", STEWARD_AUTHOR, False)
+
+    direct_vm.sender = direct_alice
+    contract.set_author("desk-one", STEWARD_AUTHOR, True)
+    with direct_vm.expect_revert("already authorized"):
+        contract.set_author("desk-one", STEWARD_AUTHOR.lower(), True)
+    contract.set_author("desk-one", STEWARD_AUTHOR.upper().replace("0X", "0x"), False)
+    assert contract.get_board("desk-one")["authors"] == []
+
+    for index in range(1, 9):
+        contract.set_author("desk-one", "0x" + f"{index:040x}", True)
+    with direct_vm.expect_revert("Author limit"):
+        contract.set_author("desk-one", "0x" + f"{9:040x}", True)
 
 
 def test_broken_inference_cannot_be_reused(direct_vm, direct_deploy):
