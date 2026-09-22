@@ -39,7 +39,7 @@ function short(value: string, left = 9, right = 6) {
 function suggestedId(prefix: string) { return `${prefix}-${Date.now().toString().slice(-7)}`; }
 
 export default function Page() {
-  const [boardId, setBoardId] = useState("threadmark-demo");
+  const [boardId, setBoardId] = useState("threadmark-demo01");
   const [boardTitle, setBoardTitle] = useState("An agent claim, traced to its source");
   const [board, setBoard] = useState<Board | null>(null);
   const [nodes, setNodes] = useState<Node[]>([]);

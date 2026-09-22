@@ -6,15 +6,19 @@
   "explorerUrl": "https://explorer-studio-dev.genlayer.com",
   "webAppUrl": "https://nearar22.github.io/threadmark/",
   "repositoryUrl": "https://github.com/nearar22/threadmark",
-  "contractAddress": "0x76797B4B99E1ee3AA36E63537F0480f6DFa7af69",
-  "contractSourceSha256": "4fb692cf5d987af9bbf61ee52daf12b4015175a9840cec1ab98497d5b066f7a4",
-  "deploymentTransaction": "0xee00c5cbddddcdcc19521c3ca2bacd30d2749bedbcfb047ec55da392feefee7a",
-  "demoBoard": "threadmark-demo",
+  "contractAddress": "0xeEF9717391d02e1cF1558A2CAC28ab1251B1a05F",
+  "contractSourceSha256": "a6beb2afeef39a20c90bb7b3aa4c5c4407f589f49d76413e78df284acf719b4d",
+  "sourceMatchesDeployment": true,
+  "deploymentTransaction": "0x3aeb5794bd37db0df9ba1cddb5611ebec31ff0add8f943f5ed277aa70379dcbe",
+  "demoBoard": "threadmark-demo01",
   "liveProof": {
-    "createBoard": "0x1fb05dec332b5f8de199f07f9434a941a2beef15c24123285aa1f3daa084dd43",
-    "pinSource": "0x58690879727261df5e27f6b62e313864c55549159c05c56817a64733c89730c9",
-    "supportedInference": "0xc82dc0c94a1537569e2ee0d421bc7aaf163c4ba384650f4731e4828b999c9c2d",
-    "brokenInference": "0x2b4fbaaaf90b740abeac9b680dadf2b30143f04cb64a21c4cd0994b0ca83194b"
+    "createBoard": "0x9353c6fa30088d192d569fe63f8262c49de0c593abc27c4ae0de9dafcedae8b0",
+    "stewardSampleAuthorAdd": "0x1ca2dd9c9628f7c431aa48655ea2571fef87425e4286674aaa38d0148505a8f4",
+    "stewardSampleAuthorRemove": "0x6c3e68711a0f385c17a84f2d08a7ce2aa08b245548a488e074920d4b214726b3",
+    "secondAuthorAdd": "0x18c123abc0315f598a45383a4e5012c0db63687e3acbb3954599cf8c9abf8ca6",
+    "authorPinSource": "0xe53a4a603a2452eb0a09311d62332eaa3c5ffaec061b0bccd4e6f182a281488b",
+    "supportedInference": "0x70f57357b5f5a971323aecead96ff4c85101d19acb0afcf4f8677e66a8507384",
+    "brokenInference": "0x928e1cdd227b9dbfda915fe64cab2f07a1c8c09204643ee12d4208d59c6fdaee"
   },
   "sourceReceipt": {
     "url": "https://raw.githubusercontent.com/nearar22/intent-lock/f8cc2d08fd4a91b0450d60e065e5c507cdfd7c99/README.md",

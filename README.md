@@ -8,9 +8,9 @@ This is not a truth oracle. It establishes whether a statement follows from the 
 
 - Web app: [nearar22.github.io/threadmark](https://nearar22.github.io/threadmark/)
 
-- Contract: [`0x76797B4B99E1ee3AA36E63537F0480f6DFa7af69`](https://explorer-studio-dev.genlayer.com/address/0x76797B4B99E1ee3AA36E63537F0480f6DFa7af69)
+- Contract: [`0xeEF9717391d02e1cF1558A2CAC28ab1251B1a05F`](https://explorer-studio-dev.genlayer.com/address/0xeEF9717391d02e1cF1558A2CAC28ab1251B1a05F)
 - Network: Studio Next, chain ID `61997`, RPC `https://studio-next.genlayer.com/api`
-- Example board: `threadmark-demo`
+- Example board: `threadmark-demo01`
 - Source node: `source-intent`, pinned to [IntentLock README at commit `f8cc2d08...`](https://raw.githubusercontent.com/nearar22/intent-lock/f8cc2d08fd4a91b0450d60e065e5c507cdfd7c99/README.md), line 5, with full-file SHA-256 `9f69ecb6caed588f21c81c1874bf4d1ae50d19bc4a0b19b692d75a595248ecec`.
 - Supported node: `claim-paraphrase`, an entailment of that line.
 - Broken node: `claim-guarantee`, an unsupported safety guarantee.
@@ -38,7 +38,7 @@ npm run build
 npm run dev
 ```
 
-Open the local app, read `threadmark-demo`, and select the three cards to inspect the pinned receipt and ancestry. Reading is public. To create a board or add nodes, connect a Studio Next wallet. The interface updates only after a transaction is successfully `FINALIZED`, not merely submitted or accepted.
+Open the local app, read `threadmark-demo01`, and select the three cards to inspect the pinned receipt and ancestry. Reading is public. To create a board or add nodes, connect a Studio Next wallet. The interface updates only after a transaction is successfully `FINALIZED`, not merely submitted or accepted.
 
 For contract tests, install the pinned packages in `requirements.txt`, then run:
 

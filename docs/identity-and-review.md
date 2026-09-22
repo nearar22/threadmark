@@ -40,12 +40,12 @@ This matrix tracks the Sep 22 author-management request. A row remains open unti
 
 | Steward requirement | Code path | Targeted proof | Live proof | Current status |
 | --- | --- | --- | --- | --- |
-| Accept the address shape actually decoded by GenVM and store one canonical representation | `_address`, `set_author`, board ownership helpers | PASS: exact sample plus address-like sender | Repeat the steward sample against the new deployment | LIVE PROOF PENDING |
+| Accept the address shape actually decoded by GenVM and store one canonical representation | `_address`, `set_author`, board ownership helpers | PASS: exact sample plus address-like sender | PASS: exact sample finalized and stored lowercase | PASS |
 | Reject malformed addresses before storage | `_address` and frontend validator | PASS: missing prefix, wrong length, non-hex, and zero | Invalid input blocked in the public form | LIVE PROOF PENDING |
-| Compare addresses case-insensitively | Canonical lowercase storage and authorization | PASS: mixed-case add, remove, and author write | Read the canonical author from Studio Next | LIVE PROOF PENDING |
+| Compare addresses case-insensitively | Canonical lowercase storage and authorization | PASS: mixed-case add, remove, and author write | PASS: mixed-case add and lowercase remove finalized | PASS |
 | Reject duplicate authors and enforce the eight-author limit | `set_author` | PASS: duplicate and ninth-author rejection | Contract tests plus deployed code match | LOCAL PASS |
 | Restrict author management to the board owner | `set_author` | PASS: unauthorized add and remove | Contract tests plus deployed code match | LOCAL PASS |
 | Format frontend input and show clear errors | author composer and transaction status handler | PASS: four address tests, typecheck, and production build | Public browser inspection | LIVE PROOF PENDING |
-| Complete the author workflow end to end | contract, frontend, deployment record | PASS: direct lifecycle test | Finalized add, remove, second-author add, and author-created node | LIVE PROOF PENDING |
+| Complete the author workflow end to end | contract, frontend, deployment record | PASS: direct lifecycle test | PASS: finalized add, remove, second-author add, and author-created node | PASS |
 
 The contract and public read path are deployed and verified. Do not claim the public wallet-write path was tested until a fresh wallet session reaches successful FINALIZED status in the hosted UI. Portal acceptance and any points are separate review decisions.
